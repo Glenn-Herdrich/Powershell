@@ -5,10 +5,6 @@ DO {
     $title = 'Hostname'
     $msg   = 'Enter the FQDN or IP of host you wish to view/uninstall software on:'
     $hosts = [Microsoft.VisualBasic.Interaction]::InputBox($msg, $title)
-    if ($hosts.DialogResult = 'Cancel'){
-        Write-Host "Exiting"
-        exit
-    }
 } While ([string]::IsNullOrEmpty($hosts))
 
 # View installed software or uninstall software
@@ -25,11 +21,6 @@ DO {
     $title = 'Software'
     $msg   = 'Enter the Win32_Product software name:'
     $software = [Microsoft.VisualBasic.Interaction]::InputBox($msg, $title)
-    switch ($software) {
-        'Cancel' {
-            exit
-         }
-    }
 } While ([string]::IsNullOrEmpty($software))
 
 Write-Host "Processing search for " $software " on system " $hosts
@@ -40,12 +31,12 @@ If ([string]::IsNullOrEmpty($apps)) {
 } Else {
     $msgBoxInput = [System.Windows.MessageBox]::Show('Do you wish to uninstall the listed software? ' + $apps,'Uninstall','YesNo','Error')
     switch ($msgBoxInput) {
-    'Yes' {$apps.Uninstall()}
-    'No' {exit}
+        'Yes' {$apps.Uninstall()}
+        'No' {exit}
     }
     $apps = Get-WmiObject -Namespace "root\cimv2" -Class Win32_Product -ComputerName $hosts | Where-Object {$_.Name -like '*' + $software + '*'}
 Write-Host $apps
     If ([string]::IsNullOrEmpty($apps)) {
-    [System.Windows.Forms.MessageBox]::Show("Software uninstalled. Exiting", "Uninstalled")
+        [System.Windows.Forms.MessageBox]::Show("Software uninstalled. Exiting", "Uninstalled")
     }
 }
